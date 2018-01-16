@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-	public Iterable<Product> findAll();
-	
-	public Page<Product> findAll(Pageable pageable);
-	
-	public Product findById(Long id);
+  public Iterable<Product> findAll();
+
+  public Page<Product> findAll(Pageable pageable);
+
+  public Product findById(Long id);
 }
