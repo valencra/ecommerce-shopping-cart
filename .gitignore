@@ -35,7 +35,9 @@ local.properties
 # TeXlipse plugin
 .texlipse
  
- 
 ### Gradle ###
 .gradle
 build/
+
+### Logs ###
+*.log
