@@ -1,14 +1,18 @@
 package com.acme.ecommerce.service;
 
 import com.acme.ecommerce.domain.Product;
+import com.acme.ecommerce.exception.ProductOrderQuantityExceedsAvailabilityException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-  public Iterable<Product> findAll();
+  Iterable<Product> findAll();
 
-  public Page<Product> findAll(Pageable pageable);
+  Page<Product> findAll(Pageable pageable);
 
-  public Product findById(Long id);
+  Product findById(Long id);
+
+  void checkQuantity(Product orderProduct, Integer orderQuantity) throws
+      ProductOrderQuantityExceedsAvailabilityException;
 }

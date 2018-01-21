@@ -1,6 +1,7 @@
 package com.acme.ecommerce.service;
 
 import com.acme.ecommerce.domain.Product;
+import com.acme.ecommerce.exception.ProductOrderQuantityExceedsAvailabilityException;
 import com.acme.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,14 @@ public class ProductServiceImpl implements ProductService {
     Product result = repository.findOne(id);
 
     return result;
+  }
+
+  @Override
+  public void checkQuantity(Product orderProduct, Integer orderQuantity) throws ProductOrderQuantityExceedsAvailabilityException {
+    // throw exception if order quantity exceeds product stock quantity
+    if (orderQuantity > orderProduct.getQuantity()) {
+      throw new ProductOrderQuantityExceedsAvailabilityException(orderProduct, orderQuantity);
+    }
   }
 
 }

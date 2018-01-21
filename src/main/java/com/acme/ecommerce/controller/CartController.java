@@ -4,6 +4,7 @@ import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
 import com.acme.ecommerce.domain.Purchase;
 import com.acme.ecommerce.domain.ShoppingCart;
+import com.acme.ecommerce.exception.ProductOrderQuantityExceedsAvailabilityException;
 import com.acme.ecommerce.service.ProductService;
 import com.acme.ecommerce.service.PurchaseService;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.math.BigDecimal;
@@ -64,12 +66,22 @@ public class CartController {
 
   @RequestMapping(path = "/add", method = RequestMethod.POST)
   public RedirectView addToCart(@ModelAttribute(value = "productId") long productId,
-                                @ModelAttribute(value = "quantity") int quantity) {
+                                @ModelAttribute(value = "quantity") int quantity,
+                                RedirectAttributes redirectAttributes) {
     boolean productAlreadyInCart = false;
     RedirectView redirect = new RedirectView("/product/");
     redirect.setExposeModelAttributes(false);
 
     Product addProduct = productService.findById(productId);
+
+    try {
+      productService.checkQuantity(addProduct, quantity);
+    } catch (ProductOrderQuantityExceedsAvailabilityException e) {
+      redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+      redirect.setUrl("/error");
+      return redirect;
+    }
+
     if (addProduct != null) {
       logger.debug("Adding Product: " + addProduct.getId());
 
@@ -198,4 +210,5 @@ public class CartController {
 
     return redirect;
   }
+
 }
