@@ -394,7 +394,22 @@ strong {
 	z-index: 100;
 	position: relative;
 	margin-bottom: -1px;
+	overflow: hidden;
 }
+.coupon-code form input {
+  float: left;
+  margin-right: 10px;
+}
+
+.coupon-code form input {
+  float: left;
+  margin-right: 10px;
+}
+
+.coupon-code-error {
+  border-color: #ac4343;
+}
+
 .checkout .cart-item span {
 	margin-bottom: 5px;
 }

@@ -43,7 +43,8 @@
     <div class="coupon-code">
         <form id="couponForm" action="#" th:action="@{/checkout/coupon}" th:object="${couponCode}"
               method="post">
-            <input type="text" th:field="*{code}" placeholder="Enter coupon code"/>
+            <input th:class="${#fields.hasErrors('code')} ? 'coupon-code-error' : ''" type="text" th:field="*{code}" placeholder="Enter coupon code"/>
+            <div class="error-message" th:if="${#fields.hasErrors('code')}" th:errors="*{code}">Hello</div>
         </form>
     </div>
     <div class="subtotal">
