@@ -21,10 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @WebAppConfiguration
 public class IndexRedirectControllerTest {
 
-  static {
-    System.setProperty("properties.home", "properties");
-  }
-
   final String BASE_URL = "http://localhost:8080/";
   @InjectMocks
   private IndexRedirectController indexRedirectController;

@@ -48,3 +48,7 @@ bootRun {
     // eCommerce.properties file
 	jvmArgs = ["-Dproperties.home=/Users/valencra/Documents/Projects/ecommerce-shopping-cart/src/main/resources"]
 }
+
+test {
+    systemProperties["properties.home"] = "/Users/valencra/Documents/Projects/ecommerce-shopping-cart/src/main/resources"
+}

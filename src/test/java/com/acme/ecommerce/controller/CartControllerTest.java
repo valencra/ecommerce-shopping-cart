@@ -37,10 +37,6 @@ import java.util.List;
 @WebAppConfiguration
 public class CartControllerTest {
 
-  static {
-    System.setProperty("properties.home", "properties");
-  }
-
   final String BASE_URL = "http://localhost:8080/";
   @Mock
   private MockHttpSession session;

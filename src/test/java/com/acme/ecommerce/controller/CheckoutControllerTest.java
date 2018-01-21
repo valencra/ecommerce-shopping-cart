@@ -40,10 +40,6 @@ import java.util.List;
 @WebAppConfiguration
 public class CheckoutControllerTest {
 
-  static {
-    System.setProperty("properties.home", "properties");
-  }
-
   final String BASE_URL = "http://localhost:8080/";
   @Mock
   private MockHttpSession session;
@@ -86,8 +82,24 @@ public class CheckoutControllerTest {
   }
 
   @Test
-  public void postCouponTest() throws Exception {
+  public void postCouponLessThan5CharsShouldFailTest() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.post("/checkout/coupon").param("couponCode", "abcd"))
+        .andDo(print())
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("coupon"));
+  }
+
+  @Test
+  public void postCouponMoreThan10CharsShouldFailTest() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.post("/checkout/coupon").param("couponCode", "abcde12345X"))
+        .andDo(print())
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("coupon"));
+  }
+
+  @Test
+  public void postCouponValidCharLenShouldPassTest() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.post("/checkout/coupon").param("couponCode", "abcde12345X"))
         .andDo(print())
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("shipping"));

@@ -34,10 +34,6 @@ public class TestProductControllerIT {
   private static final BigDecimal PRODUCT_PRICE = new BigDecimal(189.79);
   private static final Integer ORDER_QUANTITY = 3;
 
-  static {
-    System.setProperty("properties.home", "properties");
-  }
-
   @Autowired
   WebApplicationContext context;
   WebClient webClient;
