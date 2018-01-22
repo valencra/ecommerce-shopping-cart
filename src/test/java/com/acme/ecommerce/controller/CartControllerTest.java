@@ -1,5 +1,7 @@
 package com.acme.ecommerce.controller;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -11,6 +13,7 @@ import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
 import com.acme.ecommerce.domain.Purchase;
 import com.acme.ecommerce.domain.ShoppingCart;
+import com.acme.ecommerce.exception.ProductOrderQuantityExceedsAvailabilityException;
 import com.acme.ecommerce.service.ProductService;
 import com.acme.ecommerce.service.PurchaseService;
 import org.junit.Before;
@@ -268,6 +271,21 @@ public class CartControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.post("/cart/empty")).andDo(print())
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/error"));
+  }
+
+  @Test(expected = ProductOrderQuantityExceedsAvailabilityException.class)
+  public void productOrderQuantityExceedsAvailabilityThrowsException() throws Exception {
+    Product orderProduct = productBuilder();
+    when(productService.findById(1L)).thenReturn(orderProduct);
+    doAnswer(invocation -> {
+      Product product = (Product) invocation.getArguments()[0];
+      Integer quantity = (Integer) invocation.getArguments()[1];
+      if (quantity > product.getQuantity()) {
+        throw new ProductOrderQuantityExceedsAvailabilityException(product, quantity);
+      }
+      return null;
+    }).when(productService).checkQuantity(any(Product.class), any(Integer.class));
+    productService.checkQuantity(orderProduct, 10);
   }
 
   private Product productBuilder() {
