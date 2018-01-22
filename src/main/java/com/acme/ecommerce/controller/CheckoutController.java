@@ -254,7 +254,7 @@ public class CheckoutController {
       model.addAttribute("orderNumber", purchase.getOrderNumber());
       model.addAttribute("shippingAddress", purchase.getShippingAddress());
       model.addAttribute("billingAddress", purchase.getBillingAddress());
-      model.addAttribute("creditCard", purchase.getCreditCardNumber());
+      model.addAttribute("creditCard", purchase.getCreditCardNumber().replaceAll("\\w(?=\\w{4})", "*"));
     } else {
       logger.error("No purchases Found!");
       return ("redirect:/error");
