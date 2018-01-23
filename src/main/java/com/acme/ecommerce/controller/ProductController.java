@@ -1,12 +1,16 @@
 package com.acme.ecommerce.controller;
 
+import com.acme.ecommerce.domain.CouponCode;
 import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
+import com.acme.ecommerce.domain.Purchase;
+import com.acme.ecommerce.domain.ShoppingCart;
 import com.acme.ecommerce.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,11 +27,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/product")
+@Scope("request")
 public class ProductController {
 
   private static final int INITIAL_PAGE = 0;
@@ -35,6 +41,9 @@ public class ProductController {
   final Logger logger = LoggerFactory.getLogger(ProductController.class);
   @Autowired
   ProductService productService;
+
+  @Autowired
+  private ShoppingCart sCart;
 
   @Autowired
   HttpSession session;
@@ -56,6 +65,19 @@ public class ProductController {
 
     model.addAttribute("products", products);
 
+    Purchase purchase = sCart.getPurchase();
+    BigDecimal subTotal = new BigDecimal(0);
+    CouponCode couponCode = sCart.getCouponCode();
+
+    model.addAttribute("purchase", purchase);
+    if (purchase != null) {
+      if (couponCode == null) {
+        couponCode = new CouponCode();
+      }
+      subTotal = computeSubtotal(purchase, couponCode);
+      model.addAttribute("subTotal", subTotal);
+    }
+
     return "index";
   }
 
@@ -73,6 +95,19 @@ public class ProductController {
     } else {
       logger.error("Product " + id + " Not Found!");
       return "redirect:/error";
+    }
+
+    Purchase purchase = sCart.getPurchase();
+    BigDecimal subTotal = new BigDecimal(0);
+    CouponCode couponCode = sCart.getCouponCode();
+
+    model.addAttribute("purchase", purchase);
+    if (purchase != null) {
+      if (couponCode == null) {
+        couponCode = new CouponCode();
+      }
+      subTotal = computeSubtotal(purchase, couponCode);
+      model.addAttribute("subTotal", subTotal);
     }
 
     return "product_detail";
@@ -107,5 +142,21 @@ public class ProductController {
   public String aboutCartShop() {
     logger.warn("Happy Easter! Someone actually clicked on About.");
     return ("about");
+  }
+
+  private BigDecimal computeSubtotal(Purchase purchase, CouponCode couponCode) {
+    BigDecimal subTotal = new BigDecimal(0);
+    for (ProductPurchase pp : purchase.getProductPurchases()) {
+      logger.debug(
+          "cart has " + pp.getQuantity() + " of " + pp.getProduct().getName() + " at " + "$" + pp
+              .getProduct().getPrice());
+      subTotal =
+          subTotal.add(pp.getProduct().getPrice().multiply(new BigDecimal(pp.getQuantity())));
+    }
+    if (couponCode.getCode() != null && !couponCode.getCode().isEmpty()) {
+      logger.info("Applying discount for coupon");
+      subTotal = subTotal.multiply(new BigDecimal(0.9));
+    }
+    return subTotal;
   }
 }
