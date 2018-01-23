@@ -22,7 +22,7 @@
                 <li><a href="#">FAQ</a></li>
                 <li>
                     <a name="cartButton" class="button icon-right" href="/cart">
-                        View Cart <i class="material-icons">shopping_cart</i> <span th:if="${subTotal}" th:text="${'$' + #numbers.formatDecimal(subTotal, 1, 2, 'POINT')}"></span>
+                        View Cart <i class="material-icons">shopping_cart</i> <span th:if="${subTotal}" th:text="${'$' + #numbers.formatDecimal(subTotal, 0, 'COMMA', 2, 'POINT')}"></span>
                     </a>
                 </li>
             </ul>
