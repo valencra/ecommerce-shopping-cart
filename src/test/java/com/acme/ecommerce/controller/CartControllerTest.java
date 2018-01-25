@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -286,6 +287,18 @@ public class CartControllerTest {
       return null;
     }).when(productService).checkQuantity(any(Product.class), any(Integer.class));
     productService.checkQuantity(orderProduct, 10);
+  }
+
+  @Test
+  public void subtotalDisplayedInCartButton() throws Exception {
+    Product product = productBuilder();
+    when(productService.findById(1L)).thenReturn(product);
+    Purchase purchase = purchaseBuilder(product);
+    when(sCart.getPurchase()).thenReturn(purchase);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/cart"))
+        .andExpect(model().attributeExists("subTotal"));
   }
 
   private Product productBuilder() {

@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -285,10 +286,10 @@ public class CheckoutControllerTest {
   @Test
   public void confirmationTest() throws Exception {
     Product product = productBuilder();
-
     when(productService.findById(1L)).thenReturn(product);
 
     Purchase purchase = purchaseBuilder(product);
+    purchase.setCreditCardNumber("8765432177771111");
     when(sCart.getPurchase()).thenReturn(purchase);
 
     CouponCode coupon = new CouponCode();
@@ -316,6 +317,33 @@ public class CheckoutControllerTest {
     //so all we test is that the endpoint is accessible.
     mockMvc.perform(MockMvcRequestBuilders.get("/checkout/email")).andDo(print())
         .andExpect(status().isOk());
+  }
+
+  @Test
+  public void subtotalDisplayedInCartButton() throws Exception {
+    Product product = productBuilder();
+    when(productService.findById(1L)).thenReturn(product);
+
+    Purchase purchase = purchaseBuilder(product);
+    purchase.setCreditCardNumber("8765432177771111");
+    when(sCart.getPurchase()).thenReturn(purchase);
+
+    CouponCode coupon = new CouponCode();
+    coupon.setCode("abcd");
+    when(sCart.getCouponCode()).thenReturn(coupon);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/checkout/coupon"))
+        .andExpect(model().attributeExists("subTotal"));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/checkout/shipping"))
+        .andExpect(model().attributeExists("subTotal"));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/checkout/billing"))
+        .andExpect(model().attributeExists("subTotal"));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/checkout/confirmation"))
+        .andExpect(model().attributeExists("subTotal"));
   }
 
   private Product productBuilder() {

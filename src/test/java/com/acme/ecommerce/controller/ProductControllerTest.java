@@ -3,12 +3,16 @@ package com.acme.ecommerce.controller;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import com.acme.ecommerce.Application;
 import com.acme.ecommerce.domain.Product;
+import com.acme.ecommerce.domain.ProductPurchase;
+import com.acme.ecommerce.domain.Purchase;
+import com.acme.ecommerce.domain.ShoppingCart;
 import com.acme.ecommerce.service.ProductService;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,12 +44,12 @@ public class ProductControllerTest {
   final String BASE_URL = "http://localhost:8080/";
   @Mock
   private MockHttpSession session;
-
   @Mock
   private ProductService productService;
   @InjectMocks
   private ProductController productController;
-
+  @Mock
+  private ShoppingCart sCart;
   private MockMvc mockMvc;
 
   @Before
@@ -121,6 +125,21 @@ public class ProductControllerTest {
         .andExpect(content().contentType("image/jpeg"));
   }
 
+  @Test
+  public void subtotalDisplayedInCartButton() throws Exception {
+    Product product = productBuilder();
+    when(productService.findById(1L)).thenReturn(product);
+    Purchase purchase = purchaseBuilder(product);
+    when(sCart.getPurchase()).thenReturn(purchase);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/product/"))
+        .andExpect(model().attributeExists("subTotal"));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/product/detail/1"))
+        .andExpect(model().attributeExists("subTotal"));
+  }
+
   private Product productBuilder() {
     Product product = new Product();
     product.setId(1L);
@@ -131,5 +150,19 @@ public class ProductControllerTest {
     product.setFullImageName("imagename");
     product.setThumbImageName("imagename");
     return product;
+  }
+
+  private Purchase purchaseBuilder(Product product) {
+    ProductPurchase pp = new ProductPurchase();
+    pp.setProductPurchaseId(1L);
+    pp.setQuantity(1);
+    pp.setProduct(product);
+    List<ProductPurchase> ppList = new ArrayList<ProductPurchase>();
+    ppList.add(pp);
+
+    Purchase purchase = new Purchase();
+    purchase.setId(1L);
+    purchase.setProductPurchases(ppList);
+    return purchase;
   }
 }
