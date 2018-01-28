@@ -28,5 +28,12 @@
             </ul>
         </nav>
     </header>
+
+    <div th:fragment="flash" th:if="${flash != null}" class="container">
+        <div th:classappend="${#strings.toLowerCase(flash.status)}" class="flash">
+            <i class="right material-icons" data-close="">close</i>
+            <span th:text="${flash.message}" style="vertical-align: middle; display: inline-block"></span>
+        </div>
+    </div>
 </body>
 </html>

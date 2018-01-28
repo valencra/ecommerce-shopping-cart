@@ -3,6 +3,7 @@
 <head th:replace="layout :: head"></head>
 <body>
 <header th:replace="layout :: header"></header>
+<div th:replace="layout :: flash"></div>
 <section class="checkout">
     <h1><span>Checkout&nbsp;&nbsp;>&nbsp;&nbsp;</span>Verify Items</h1>
     <div th:each="productPurchase,iterStat : ${purchase.productPurchases}" class="cart-item">

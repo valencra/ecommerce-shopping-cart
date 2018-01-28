@@ -3,6 +3,7 @@
 <head th:replace="layout :: head"></head>
 <body>
 <header th:replace="layout :: header"></header>
+<div th:replace="layout :: flash"></div>
 <section class="product-detail">
     <div class="product-image">
         <img th:src="@{/product/{productId}/image(productId=${product.id})}"/>

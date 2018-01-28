@@ -3,6 +3,7 @@
 <head th:replace="layout :: head"></head>
 <body>
 <header th:replace="layout :: header"></header>
+<div th:replace="layout :: flash"></div>
 <section class="product-listing">
     <div th:each="product,iterStat : ${products}" class="item">
         <a th:href="@{/product/detail/{productId}(productId=${product.id})}"><img

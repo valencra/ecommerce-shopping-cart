@@ -5,6 +5,7 @@ import com.acme.ecommerce.domain.ProductPurchase;
 import com.acme.ecommerce.domain.Purchase;
 import com.acme.ecommerce.domain.ShoppingCart;
 import com.acme.ecommerce.exception.ProductOrderQuantityExceedsAvailabilityException;
+import com.acme.ecommerce.messaging.FlashMessage;
 import com.acme.ecommerce.service.ProductService;
 import com.acme.ecommerce.service.PurchaseService;
 import org.slf4j.Logger;
@@ -77,6 +78,7 @@ public class CartController {
     try {
       productService.checkQuantity(addProduct, quantity);
     } catch (ProductOrderQuantityExceedsAvailabilityException e) {
+      redirectAttributes.addFlashAttribute("flash", new FlashMessage("Requested quantity exceeds stock!", FlashMessage.Status.FAILURE));
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
       redirect.setUrl("/error");
       return redirect;
@@ -108,6 +110,7 @@ public class CartController {
         purchase.getProductPurchases().add(newProductPurchase);
       }
       logger.debug("Added " + quantity + " of " + addProduct.getName() + " to cart");
+      redirectAttributes.addFlashAttribute("flash", new FlashMessage("Added products successfully!", FlashMessage.Status.SUCCESS));
       sCart.setPurchase(purchaseService.save(purchase));
     } else {
       logger.error("Attempt to add unknown product: " + productId);
@@ -119,7 +122,8 @@ public class CartController {
 
   @RequestMapping(path = "/update", method = RequestMethod.POST)
   public RedirectView updateCart(@ModelAttribute(value = "productId") long productId,
-                                 @ModelAttribute(value = "newQuantity") int newQuantity) {
+                                 @ModelAttribute(value = "newQuantity") int newQuantity,
+                                 RedirectAttributes redirectAttributes) {
     logger.debug("Updating Product: " + productId + " with Quantity: " + newQuantity);
     RedirectView redirect = new RedirectView("/cart");
     redirect.setExposeModelAttributes(false);
@@ -137,10 +141,12 @@ public class CartController {
               if (newQuantity > 0) {
                 pp.setQuantity(newQuantity);
                 logger.debug("Updated " + updateProduct.getName() + " to " + newQuantity);
+                redirectAttributes.addFlashAttribute("flash", new FlashMessage("Updated products successfully!", FlashMessage.Status.SUCCESS));
               } else {
                 purchase.getProductPurchases().remove(pp);
                 logger.debug("Removed " + updateProduct.getName() + " because quantity was set to "
                     + newQuantity);
+                redirectAttributes.addFlashAttribute("flash", new FlashMessage("Removed products successfully!", FlashMessage.Status.SUCCESS));
               }
               break;
             }
@@ -157,7 +163,7 @@ public class CartController {
   }
 
   @RequestMapping(path = "/remove", method = RequestMethod.POST)
-  public RedirectView removeFromCart(@ModelAttribute(value = "productId") long productId) {
+  public RedirectView removeFromCart(@ModelAttribute(value = "productId") long productId, RedirectAttributes redirectAttributes) {
     logger.debug("Removing Product: " + productId);
     RedirectView redirect = new RedirectView("/cart");
     redirect.setExposeModelAttributes(false);
@@ -171,6 +177,7 @@ public class CartController {
             if (pp.getProduct().getId().equals(productId)) {
               purchase.getProductPurchases().remove(pp);
               logger.debug("Removed " + updateProduct.getName());
+              redirectAttributes.addFlashAttribute("flash", new FlashMessage("Removed products successfully!", FlashMessage.Status.SUCCESS));
               break;
             }
           }
@@ -194,7 +201,7 @@ public class CartController {
   }
 
   @RequestMapping(path = "/empty", method = RequestMethod.POST)
-  public RedirectView emptyCart() {
+  public RedirectView emptyCart(RedirectAttributes redirectAttributes) {
     RedirectView redirect = new RedirectView("/product/");
     redirect.setExposeModelAttributes(false);
 
@@ -203,6 +210,7 @@ public class CartController {
     if (purchase != null) {
       purchase.getProductPurchases().clear();
       sCart.setPurchase(purchaseService.save(purchase));
+      redirectAttributes.addFlashAttribute("flash", new FlashMessage("Emptied cart successfully!", FlashMessage.Status.SUCCESS));
     } else {
       logger.error("Unable to find shopping cart for update");
       redirect.setUrl("/error");

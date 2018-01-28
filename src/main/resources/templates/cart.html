@@ -3,6 +3,7 @@
 <head th:replace="layout :: head"></head>
 <body>
 <header th:replace="layout :: header"></header>
+<div th:replace="layout :: flash"></div>
 <section class="cart">
     <h1>Your Cart</h1>
     <div th:if="${purchase != null and not #lists.isEmpty(purchase.productPurchases)}">
