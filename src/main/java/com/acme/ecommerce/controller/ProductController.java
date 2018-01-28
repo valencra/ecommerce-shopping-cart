@@ -5,6 +5,7 @@ import com.acme.ecommerce.domain.Product;
 import com.acme.ecommerce.domain.ProductPurchase;
 import com.acme.ecommerce.domain.Purchase;
 import com.acme.ecommerce.domain.ShoppingCart;
+import com.acme.ecommerce.messaging.FlashMessage;
 import com.acme.ecommerce.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -82,7 +84,7 @@ public class ProductController {
   }
 
   @RequestMapping(path = "/detail/{id}", method = RequestMethod.GET)
-  public String productDetail(@PathVariable long id, Model model) {
+  public String productDetail(@PathVariable long id, Model model, RedirectAttributes redirectAttributes) {
     logger.debug("Details for Product " + id);
 
     Product returnProduct = productService.findById(id);
@@ -94,6 +96,8 @@ public class ProductController {
       model.addAttribute("productPurchase", productPurchase);
     } else {
       logger.error("Product " + id + " Not Found!");
+      redirectAttributes.addFlashAttribute("flash", new FlashMessage("Requested product not found!", FlashMessage.Status.FAILURE));
+      redirectAttributes.addFlashAttribute("errorMessage", "Product " + id + " Not Found!");
       return "redirect:/error";
     }
 

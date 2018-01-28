@@ -139,9 +139,17 @@ public class CartController {
           if (pp.getProduct() != null) {
             if (pp.getProduct().getId().equals(productId)) {
               if (newQuantity > 0) {
-                pp.setQuantity(newQuantity);
-                logger.debug("Updated " + updateProduct.getName() + " to " + newQuantity);
-                redirectAttributes.addFlashAttribute("flash", new FlashMessage("Updated products successfully!", FlashMessage.Status.SUCCESS));
+                try {
+                  productService.checkQuantity(updateProduct, newQuantity);
+                  pp.setQuantity(newQuantity);
+                  logger.debug("Updated " + updateProduct.getName() + " to " + newQuantity);
+                  redirectAttributes.addFlashAttribute("flash", new FlashMessage("Updated products successfully!", FlashMessage.Status.SUCCESS));
+                } catch (ProductOrderQuantityExceedsAvailabilityException e) {
+                  redirectAttributes.addFlashAttribute("flash", new FlashMessage("Requested quantity exceeds stock!", FlashMessage.Status.FAILURE));
+                  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+                  redirect.setUrl("/error");
+                  return redirect;
+                }
               } else {
                 purchase.getProductPurchases().remove(pp);
                 logger.debug("Removed " + updateProduct.getName() + " because quantity was set to "
