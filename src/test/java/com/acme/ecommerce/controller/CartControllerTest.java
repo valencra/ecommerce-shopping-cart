@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -98,7 +99,8 @@ public class CartControllerTest {
         MockMvcRequestBuilders.post("/cart/add").param("quantity", "1").param("productId", "1"))
         .andDo(print())
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("/product/"));
+        .andExpect(redirectedUrl("/product/"))
+        .andExpect(flash().attributeExists("flash"));
   }
 
   @Test
@@ -126,7 +128,8 @@ public class CartControllerTest {
         .param("productId", "1"))
         .andDo(print())
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("/cart"));
+        .andExpect(redirectedUrl("/cart"))
+        .andExpect(flash().attributeExists("flash"));
   }
 
   @Test
@@ -186,7 +189,8 @@ public class CartControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.post("/cart/remove").param("productId", "1"))
         .andDo(print())
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("/cart"));
+        .andExpect(redirectedUrl("/cart"))
+        .andExpect(flash().attributeExists("flash"));
   }
 
   @Test
@@ -261,7 +265,8 @@ public class CartControllerTest {
 
     mockMvc.perform(MockMvcRequestBuilders.post("/cart/empty")).andDo(print())
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("/product/"));
+        .andExpect(redirectedUrl("/product/"))
+        .andExpect(flash().attributeExists("flash"));
   }
 
   @Test
